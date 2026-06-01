@@ -1,9 +1,9 @@
 {
-  "name": "dashboard",
+  "name": "datasetdashboard",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://lukassoap.github.io/dashboard",
+  "homepage": "https://lukassoap.github.io/datasetdashboard",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
