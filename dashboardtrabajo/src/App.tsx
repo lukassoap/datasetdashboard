@@ -9,7 +9,7 @@ function App() {
   //const [count, setCount] = useState(0)
 
   return (
-    <Grid container justifyContent="center" alignItems="center" spacing={5}>
+    <Grid container spacing={5} sx={{justifyContent:"center", alignItems:"center"}}>
       {/*encabezado */}
       <Grid size = {{xs: 12, md: 12}}>
         <HeaderUI />
