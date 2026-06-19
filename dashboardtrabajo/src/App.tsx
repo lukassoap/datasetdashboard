@@ -31,16 +31,16 @@ import {
 } from 'recharts'
 
 const chartColors = [
-  '#4e79a7',
-  '#f28e2b',
-  '#e15759',
-  '#76b7b2',
-  '#59a14f',
-  '#edc948',
-  '#b07aa1',
-  '#ff9da7',
-  '#9c755f',
-  '#bab0ab',
+  '#d9733f',
+  '#f0a175',
+  '#d18a5a',
+  '#c76449',
+  '#b25b45',
+  '#e7b58b',
+  '#f4d1a8',
+  '#a7683b',
+  '#ab7c58',
+  '#ce9a75',
 ]
 
 const parseNumber = (value?: string) => {
@@ -192,9 +192,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 4, background: '#f4f6fa', minHeight: '100vh' }}>
+      <Box sx={{ p: 4, background: '#fbf0e6', minHeight: '100vh' }}>
         <HeaderUI />
-        <Typography variant="h6" sx={{ mt: 4 }}>
+        <Typography variant="h6" sx={{ mt: 4, color: '#6b3e1f' }}>
           Cargando datos desde Firebase Realtime Database...
         </Typography>
       </Box>
@@ -203,9 +203,9 @@ export default function App() {
 
   if (error) {
     return (
-      <Box sx={{ p: 4, background: '#f4f6fa', minHeight: '100vh' }}>
+      <Box sx={{ p: 4, background: '#fbf0e6', minHeight: '100vh' }}>
         <HeaderUI />
-        <Typography variant="h6" color="error" sx={{ mt: 4 }}>
+        <Typography variant="h6" color="error" sx={{ mt: 4, color: '#a84424' }}>
           Error: {error}
         </Typography>
       </Box>
@@ -213,16 +213,16 @@ export default function App() {
   }
 
   return (
-    <Box sx={{ p: 4, background: '#f4f6fa', minHeight: '100vh' }}>
+    <Box sx={{ p: 4, background: '#fbf0e6', minHeight: '100vh' }}>
       <HeaderUI />
-      <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
+      <Typography variant="subtitle1" sx={{ mb: 3, color: '#6b3e1f' }}>
         Dashboard de vehículos usados y nuevos con estadísticas{' '}
         {usingFallback ? 'desde datos locales' : 'desde Firebase Realtime Database'}.
-        {usingFallback && <span style={{ color: '#ff9800', marginLeft: '8px' }}>(Modo fallback)</span>}
+        {usingFallback && <span style={{ color: '#b3541f', marginLeft: '8px' }}>(Modo fallback)</span>}
       </Typography>
 
       <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' } }}>
-        <Card elevation={2} sx={{ height: '100%' }}>
+        <Card elevation={2} sx={{ height: '100%', background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               Total de anuncios
@@ -232,7 +232,7 @@ export default function App() {
             </Typography>
           </CardContent>
         </Card>
-        <Card elevation={2} sx={{ height: '100%' }}>
+        <Card elevation={2} sx={{ height: '100%', background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               Precio promedio
@@ -242,7 +242,7 @@ export default function App() {
             </Typography>
           </CardContent>
         </Card>
-        <Card elevation={2} sx={{ height: '100%' }}>
+        <Card elevation={2} sx={{ height: '100%', background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               Kilometraje promedio
@@ -252,7 +252,7 @@ export default function App() {
             </Typography>
           </CardContent>
         </Card>
-        <Card elevation={2} sx={{ height: '100%' }}>
+        <Card elevation={2} sx={{ height: '100%', background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               Marcas únicas
@@ -283,7 +283,7 @@ export default function App() {
       </Box>
 
       <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' } }}>
-        <Card elevation={2} sx={{ height: 420 }}>
+        <Card elevation={2} sx={{ height: 420, background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Distribución por categoría
@@ -310,7 +310,7 @@ export default function App() {
           </CardContent>
         </Card>
 
-        <Card elevation={2} sx={{ height: 420 }}>
+        <Card elevation={2} sx={{ height: 420, background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Top marcas por cantidad de anuncios
@@ -321,7 +321,7 @@ export default function App() {
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="value" fill="#4e79a7">
+                <Bar dataKey="value" fill="#c76449">
                   {brandData.map((_, index) => (
                     <Cell key={`brand-${index}`} fill={chartColors[index % chartColors.length]} />
                   ))}
@@ -331,7 +331,7 @@ export default function App() {
           </CardContent>
         </Card>
 
-        <Card elevation={2} sx={{ height: 420 }}>
+        <Card elevation={2} sx={{ height: 420, background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Anuncios por ciudad / lugar
@@ -342,13 +342,13 @@ export default function App() {
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" width={120} />
                 <Tooltip />
-                <Bar dataKey="value" fill="#59a14f" />
+                <Bar dataKey="value" fill="#d18a5a" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card elevation={2} sx={{ height: 420 }}>
+        <Card elevation={2} sx={{ height: 420, background: '#fff3ea' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Precio promedio por año (últimos 10 años)
@@ -359,21 +359,21 @@ export default function App() {
                 <XAxis dataKey="year" />
                 <YAxis tickFormatter={(value: number) => `$${value}`} />
                 <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                <Bar dataKey="averagePrice" fill="#f28e2b" />
+                <Bar dataKey="averagePrice" fill="#e7b58b" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </Box>
 
-      <Card elevation={2}>
+      <Card elevation={2} sx={{ background: '#fff3ea' }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
             Modelos más frecuentes
           </Typography>
           <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' } }}>
             {topModels.map((item, index) => (
-              <Card sx={{ background: '#f8fafc' }} key={`${item.name}-${index}`}>
+              <Card sx={{ background: '#fde2c2' }} key={`${item.name}-${index}`}>
                 <CardContent>
                   <Typography variant="subtitle2" color="text.secondary">
                     {item.name}
