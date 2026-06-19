@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
-import * as Papa from 'papaparse'
-import csvText from '../dataset/patiotuerca2023-02-10.csv?raw'
+import { useMemo, useState, useEffect } from 'react'
+import { onValue, ref } from 'firebase/database'
 import HeaderUI from './assets/HeaderUI'
+import { database } from './firebase'
 import type { Listing } from './types/DashboardTypes'
 import type { SelectChangeEvent } from '@mui/material/Select'
 import {
@@ -71,27 +71,57 @@ const groupCounts = (items: Listing[], key: (item: Listing) => string) => {
     .sort((a, b) => b.value - a.value)
 }
 
+const mapRecord = (row: Record<string, unknown>): Listing => ({
+  year: parseNumber(String(row.year ?? row.Year ?? '')),
+  mileage: parseNumber(String(row.Kilometraje ?? row.kilometraje ?? row.mileage ?? '')),
+  price: parseNumber(String(row.Precio ?? row.precio ?? row.price ?? '')),
+  place: normalizeText(String(row.Lugar ?? row.lugar ?? row.place ?? 'Unknown')),
+  negotiation: normalizeText(String(row.Negociacion ?? row.negociacion ?? row.negotiation ?? 'Unknown')),
+  category: normalizeText(String(row.Categoria ?? row.categoria ?? row.category ?? 'Unknown')),
+  brand: normalizeText(String(row.Marca ?? row.marca ?? row.brand ?? 'Unknown')),
+  subtype: normalizeText(String(row.Subtipo ?? row.subtipo ?? row.subtype ?? 'Unknown')),
+  model: normalizeText(String(row.Modelo ?? row.modelo ?? row.model ?? 'Unknown')),
+})
+
 export default function App() {
   const [selectedPlace, setSelectedPlace] = useState('All')
+  const [listings, setListings] = useState<Listing[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const listings = useMemo<Listing[]>(() => {
-    const parsed = Papa.parse<Record<string, string>>(csvText, {
-      header: true,
-      skipEmptyLines: true,
-      transformHeader: (header: string) => header.trim(),
-    })
+  useEffect(() => {
+    const listingsRef = ref(database, '/listings')
 
-    return parsed.data.map((row: Record<string, string>) => ({
-      year: parseNumber(row.year),
-      mileage: parseNumber(row.Kilometraje),
-      price: parseNumber(row.Precio),
-      place: normalizeText(row.Lugar),
-      negotiation: normalizeText(row.Negociacion),
-      category: normalizeText(row.Categoria),
-      brand: normalizeText(row.Marca),
-      subtype: normalizeText(row.Subtipo),
-      model: normalizeText(row.Modelo),
-    }))
+    const unsubscribe = onValue(
+      listingsRef,
+      (snapshot) => {
+        const value = snapshot.val()
+        if (!value) {
+          setListings([])
+          setError('No data found in Realtime Database at /listings')
+          setLoading(false)
+          return
+        }
+
+        const rawItems = Array.isArray(value) ? value : Object.values(value)
+        const parsed = rawItems
+          .filter(Boolean)
+          .map((item) =>
+            typeof item === 'object' && item !== null ? mapRecord(item as Record<string, unknown>) : null,
+          )
+          .filter((item): item is Listing => item !== null)
+
+        setListings(parsed)
+        setError(null)
+        setLoading(false)
+      },
+      (err) => {
+        setError(err.message)
+        setLoading(false)
+      },
+    )
+
+    return unsubscribe
   }, [])
 
   const filteredListings = useMemo<Listing[]>(
@@ -139,11 +169,33 @@ export default function App() {
     setSelectedPlace(event.target.value as string)
   }
 
+  if (loading) {
+    return (
+      <Box sx={{ p: 4, background: '#f4f6fa', minHeight: '100vh' }}>
+        <HeaderUI />
+        <Typography variant="h6" sx={{ mt: 4 }}>
+          Cargando datos desde Firebase Realtime Database...
+        </Typography>
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 4, background: '#f4f6fa', minHeight: '100vh' }}>
+        <HeaderUI />
+        <Typography variant="h6" color="error" sx={{ mt: 4 }}>
+          Error: {error}
+        </Typography>
+      </Box>
+    )
+  }
+
   return (
     <Box sx={{ p: 4, background: '#f4f6fa', minHeight: '100vh' }}>
       <HeaderUI />
       <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
-        Dashboard de vehículos usados y nuevos con estadísticas extraídas del CSV.
+        Dashboard de vehículos usados y nuevos con estadísticas extraídas desde Firebase Realtime Database.
       </Typography>
 
       <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' } }}>
