@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
+import * as Papa from 'papaparse'
 import { onValue, ref } from 'firebase/database'
+import csvText from '../dataset/patiotuerca2023-02-10.csv?raw'
 import HeaderUI from './assets/HeaderUI'
 import { database } from './firebase'
 import type { Listing } from './types/DashboardTypes'
@@ -83,11 +85,22 @@ const mapRecord = (row: Record<string, unknown>): Listing => ({
   model: normalizeText(String(row.Modelo ?? row.modelo ?? row.model ?? 'Unknown')),
 })
 
+const loadCSVFallback = (): Listing[] => {
+  const parsed = Papa.parse<Record<string, string>>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: (header: string) => header.trim(),
+  })
+
+  return parsed.data.map((row: Record<string, string>) => mapRecord(row))
+}
+
 export default function App() {
   const [selectedPlace, setSelectedPlace] = useState('All')
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [usingFallback, setUsingFallback] = useState(false)
 
   useEffect(() => {
     const listingsRef = ref(database, '/listings')
@@ -97,8 +110,11 @@ export default function App() {
       (snapshot) => {
         const value = snapshot.val()
         if (!value) {
-          setListings([])
-          setError('No data found in Realtime Database at /listings')
+          console.log('No Firebase data found, falling back to local CSV...')
+          const csvData = loadCSVFallback()
+          setListings(csvData)
+          setUsingFallback(true)
+          setError(null)
           setLoading(false)
           return
         }
@@ -113,10 +129,15 @@ export default function App() {
 
         setListings(parsed)
         setError(null)
+        setUsingFallback(false)
         setLoading(false)
       },
       (err) => {
-        setError(err.message)
+        console.error('Firebase error, falling back to local CSV:', err)
+        const csvData = loadCSVFallback()
+        setListings(csvData)
+        setUsingFallback(true)
+        setError(null)
         setLoading(false)
       },
     )
@@ -195,7 +216,9 @@ export default function App() {
     <Box sx={{ p: 4, background: '#f4f6fa', minHeight: '100vh' }}>
       <HeaderUI />
       <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
-        Dashboard de vehículos usados y nuevos con estadísticas extraídas desde Firebase Realtime Database.
+        Dashboard de vehículos usados y nuevos con estadísticas{' '}
+        {usingFallback ? 'desde datos locales' : 'desde Firebase Realtime Database'}.
+        {usingFallback && <span style={{ color: '#ff9800', marginLeft: '8px' }}>(Modo fallback)</span>}
       </Typography>
 
       <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' } }}>
